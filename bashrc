@@ -43,10 +43,6 @@ xterm*|rxvt*)
     ;;
 esac
 
-# Enable chruby.
-#   Requires: https://github.com/postmodern/chruby
-source /usr/local/share/chruby/chruby.sh
-
 # Enable a better reverse search experience.
 #   Requires: https://github.com/junegunn/fzf (to use fzf in general)
 #   Requires: https://github.com/BurntSushi/ripgrep (for using rg below)
