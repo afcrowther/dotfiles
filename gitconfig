@@ -1,0 +1,9 @@
+[user]
+  name = Adam Crowther
+  email = afcrowther@icloud.com
+[github]
+  user = afcrowther
+[core]
+  excludesfile = ~/.gitignore_global
+[push]
+  default = current
