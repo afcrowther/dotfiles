@@ -75,7 +75,7 @@ DISABLE_AUTO_TITLE="true"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(docker git github kubectl)
+plugins=(docker git github tmux kubectl)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -134,6 +134,7 @@ source ~/.functions.sh
 # Use neovim as default
 export EDITOR=nvim
 
+# colors!
 export TERM=xterm-256color
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
