@@ -11,3 +11,4 @@
 - coc.nvim
 - Tmux
 - FZF
+- Ruby (gems config)
