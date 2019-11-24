@@ -131,5 +131,10 @@ source ~/.aliases
 # Source custom functions
 source ~/.functions.sh
 
+# Use neovim as default
+export EDITOR=nvim
+
+export TERM=xterm-256color
+
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh

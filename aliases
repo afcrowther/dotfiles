@@ -13,6 +13,9 @@ if [ -x /usr/bin/dircolors ]; then
   alias egrep="egrep --color=auto"
 fi
 
+# Tmux
+alias tmux="tmux -2 -u"
+
 # Tail
 alias tf="tail -f"
 
