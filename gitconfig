@@ -11,6 +11,9 @@
 [push]
   default = current
 
+[credential]
+  helper = store
+
 [color]
   ui = true
 

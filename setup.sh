@@ -26,3 +26,4 @@ ln -s "$(pwd)/gitconfig" ~/.gitconfig
 
 # load changes into shell
 . ~/.bashrc
+
