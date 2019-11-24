@@ -1,29 +1,27 @@
 #!/bin/bash
 
-# remove existing config files
-if [ -f ~/.bashrc ]; then
-	rm ~/.bashrc
-fi
+remove_if_exists() {
+  if [ -f $1 ]; then
+    echo "Removing existing $1 file"
+    rm $1
+  fi
+}
 
-if [ -f ~/.aliases ]; then
-	rm ~/.aliases
-fi
+link_file_to_home() {
+  ln -s "$(pwd)/$1" ~/.$1
+}
 
-if [ -f ~/.gitignore_global ]; then
-	rm ~/.gitignore_global
-fi
+remove_existing_and_link_file() {
+  remove_if_exists ~/.$1
+  link_file_to_home $1
+}
 
-if [ -f ~/.gitconfig ]; then
-	rm ~/.gitconfig
-fi
+echo "Setting up environment..."
+cd "$(dirname $0)"
+# required files
+dotfiles=("aliases" "functions.sh" "fzf.zsh" "gitignore_global" "gitconfig" "p10k.zsh" "vimrc" "zshrc")
 
-# change dir to correct location
-cd "$(dirname "$0")"
-ln -s "$(pwd)/bashrc" ~/.bashrc
-ln -s "$(pwd)/aliases" ~/.aliases
-ln -s "$(pwd)/gitignore_global" ~/.gitignore_global
-ln -s "$(pwd)/gitconfig" ~/.gitconfig
-
-# load changes into shell
-. ~/.bashrc
-
+for dotfile in "${dotfiles[@]}"
+do
+  remove_existing_and_link_file $dotfile
+done
