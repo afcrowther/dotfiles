@@ -19,7 +19,7 @@ remove_existing_and_link_file() {
 echo "Setting up environment..."
 cd "$(dirname $0)"
 # required files
-dotfiles=("aliases" "functions.sh" "fzf.zsh" "gitignore_global" "gitconfig" "p10k.zsh" "vimrc" "zshrc")
+dotfiles=("profile" "aliases" "functions.sh" "fzf.zsh" "gitignore_global" "gitconfig" "p10k.zsh" "vimrc" "zshrc")
 
 for dotfile in "${dotfiles[@]}"
 do
