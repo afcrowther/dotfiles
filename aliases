@@ -13,6 +13,9 @@ if [ -x /usr/bin/dircolors ]; then
   alias egrep="egrep --color=auto"
 fi
 
+# Neovim
+alias vim="nvim"
+
 # Tmux
 alias tmux="tmux -2 -u"
 
@@ -27,6 +30,7 @@ alias kp="kubectl get pods"
 alias ks="kubectl get services"
 alias kn="kubectl get nodes"
 alias ka="kubectl apply -f"
+alias ku="kustomize"
 
 # Git
 alias gcm="git checkout master"
