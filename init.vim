@@ -1,12 +1,16 @@
 call plug#begin('~/.vim/plugged')
 
 Plug 'godlygeek/tabular'
-Plug 'plasticboy/vimmarkdown'
+Plug 'plasticboy/vim-markdown'
 Plug 'tpope/vim-sensible'
 Plug 'junegunn/seoul256.vim'
 
 call plug#end()
 
+" colours
+colo seoul256
+
+" tab options
 set tabstop=2
 set shiftwidth=2
 set softtabstop=2
