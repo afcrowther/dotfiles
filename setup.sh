@@ -30,6 +30,12 @@ ln -s "$(pwd)/init.vim" ~/.config/nvim/init.vim
 
 alias vim="nvim"
 
+# add colors
+if [ ! -d ~/.config/nvim/pack/themes/opt/solarized8 ]; then
+  echo "Adding solar colour theme"
+  git clone https://github.com/lifepillar/vim-solarized8.git ~/.config/nvim/pack/themes/opt/solarized8
+fi
+
 for dotfile in "${dotfiles[@]}"
 do
   remove_existing_and_link_file $dotfile
