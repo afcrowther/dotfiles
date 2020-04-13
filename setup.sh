@@ -21,7 +21,7 @@ remove_existing_and_link_file() {
 echo "Setting up environment..."
 cd "$(dirname $0)"
 # required files
-dotfiles=("profile" "aliases" "functions.sh" "fzf.zsh" "gitignore_global" "gitconfig" "p10k.zsh" "tmux.conf" "tmux.conf.local" "zshrc")
+dotfiles=("profile" "aliases" "functions.sh" "fzf.zsh" "gitignore_global" "gitconfig" "tmux.conf" "zshrc")
 
 # handle neovim config
 remove_if_exists ~/.config/nvim/init.vim
@@ -29,12 +29,6 @@ mkdir -p ~/.config/nvim
 ln -s "$(pwd)/init.vim" ~/.config/nvim/init.vim
 
 alias vim="nvim"
-
-# add colors
-if [ ! -d ~/.config/nvim/pack/themes/opt/solarized8 ]; then
-  echo "Adding solar colour theme"
-  git clone https://github.com/lifepillar/vim-solarized8.git ~/.config/nvim/pack/themes/opt/solarized8
-fi
 
 for dotfile in "${dotfiles[@]}"
 do
