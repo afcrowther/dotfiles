@@ -1,11 +1,11 @@
 export ZSH=~/.oh-my-zsh
 
-ZSH_THEME="pygmalion"
+ZSH_THEME="pygmalion-virtualenv"
 
 DISABLE_AUTO_UPDATE="true"
 DISABLE_AUTO_TITLE="true"
 ENABLE_CORRECTION="true"
-plugins=(docker git github tmux kubectl)
+plugins=(docker git github tmux kubectl virtualenv)
 source $ZSH/oh-my-zsh.sh
 
 # Setup fzf
@@ -46,3 +46,6 @@ export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 # Ruby gems
 export GEM_HOME="$HOME/gems"
 export PATH="$HOME/gems/bin:$PATH"
+
+# Enable virtualenv
+export VIRTUAL_ENV_DISABLE_PROMPT=

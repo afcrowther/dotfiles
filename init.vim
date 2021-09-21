@@ -11,6 +11,7 @@ Plug 'vim-airline/vim-airline-themes'
 Plug 'edkolev/tmuxline.vim'
 Plug 'bling/vim-bufferline'
 Plug 'ctrlpvim/ctrlp.vim'
+" coc and plugins
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'neoclide/coc-yaml', {'do': 'yarn install --frozen-lockfile'}
 
@@ -19,6 +20,9 @@ Plug 'plasticboy/vim-markdown'
 Plug 'stephpy/vim-yaml'
 
 call plug#end()
+
+" more coc extenstion
+let g:coc_global_extensions = ['coc-json', 'coc-git', 'coc-pyright']
 
 " colours
 if (has("nvim"))
@@ -29,12 +33,17 @@ if (has("termguicolors"))
 endif
 syntax enable
 set background=dark
-colorscheme solarized8_flat
+colorscheme solarized8
 
 set t_8b=^[[48;2;%lu;%lu;%lum
 set t_8f=^[[38;2;%lu;%lu;%lum
 set t_Co=256
 set t_ut=
+
+" open new splits below and to the right for horizontal and vertical splits
+" respectively
+set splitbelow
+set splitright
 
 " tab options
 set tabstop=2
@@ -53,7 +62,7 @@ autocmd BufEnter * if bufname('#') =~# "^NERD_tree_" && winnr('$') > 1 | b# | en
 let NERDTreeShowHidden=1
 
 " git status symbols
-let g:NERDTreeIndicatorMapCustom = {
+let g:NERDTreeGitStatusIndicatorMapCustom = {
     \ "Modified"  : "✹",
     \ "Staged"    : "✚",
     \ "Untracked" : "✭",
@@ -69,6 +78,9 @@ let g:NERDTreeIndicatorMapCustom = {
 " airline
 let g:airline_theme = 'solarized'
 let g:airline_powerline_fonts = 1
+let g:airline#extensions#tabline#enabled = 1
+let g:airline_statusline_ontop= 1 " draw status line on top
+
 
 " filetype
 au BufRead,BufNewFile *.sbt set filetype=scala
@@ -145,9 +157,11 @@ xmap <leader>f  <Plug>(coc-format-selected)
 nmap <leader>f  <Plug>(coc-format-selected)
 
 " Setup formatexpr specified filetype(s).
+autocmd FileType python let b:coc_root_patterns = ['.git', '.env', 'venv', '.venv', 'setup.cfg', 'setup.py', 'pyproject.toml', 'pyrightconfig.json']
 autocmd FileType scala setl formatexpr=CocAction('formatSelected')
 autocmd FileType yaml setl formatexpr=CocAction('formatSelected')
 autocmd FileType yml setl formatexpr=CocAction('formatSelected')
+"
 " Update signature help on jump placeholder
 autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
 

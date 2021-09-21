@@ -31,5 +31,8 @@ function fg-bg() {
     zle push-input
   fi
 }
+
 zle -N fg-bg
 bindkey '^Z' fg-bg
+
+
