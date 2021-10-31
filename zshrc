@@ -8,6 +8,10 @@ ENABLE_CORRECTION="true"
 plugins=(docker git github tmux kubectl virtualenv)
 source $ZSH/oh-my-zsh.sh
 
+# Source secrets if available
+[ -f ~/.secrets.sh ] && source ~/.secrets.sh
+
+
 # Setup fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
@@ -34,8 +38,8 @@ source ~/.aliases
 # Source custom functions
 source ~/.functions.sh
 
-# Use neovim as default
-export EDITOR=nvim
+# Use lvim as default
+export EDITOR=lvim
 
 # colors!
 export TERM=xterm-256color

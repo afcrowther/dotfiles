@@ -14,7 +14,7 @@ if [ -x /usr/bin/dircolors ]; then
 fi
 
 # Neovim
-alias vim="nvim"
+alias vim="lvim"
 
 # Tmux
 alias tmux="tmux -2 -u"

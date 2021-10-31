@@ -6,12 +6,21 @@
 # Takes one argument, which is the optional proxy command to prefix on any 
 # outbound network calls
 
+# TODO: getopts, usage, proxy, backup dotfiles
+
+_print_usage() {
+  echo "$0 usage:" && grep ' .)\ #' $0; exit 0;
+}
+
+a=' s) # Specify strength, either 45 or 90.'
 if [[ -z $1 ]]; then
-  _PROXY_CMD = $1
+  _PROXY_CMD=$1
 else
-  _PROXY_CMD = ''
+  _PROXY_CMD=''
 fi
-_PACKAGES=("git" "fontconfig" "fonts-powerline" "powerline-fonts" "neovim" "nodejs" "tmux" "fzf" "ruby" "ruby-full")
+
+_APT_PACKAGES=("git" "fontconfig" "fonts-powerline" "neovim" "nodejs" "tmux" "fzf" "ruby" "ruby-full")
+_YUM_PACKAGES=("git" "fontconfig" "powerline-fonts" "neovim" "nodejs" "tmux" "fzf" "ruby" "ruby-full")
 _DOTFILES=("profile" "aliases" "functions.sh" "fzf.zsh" "gitignore_global" "gitconfig" "tmux.conf" "zshrc")
 _YUM_LOCATION='/usr/bin/yum'
 _YUM_CMD="$_PROXY_CMD sudo ${_YUM_LOCATION} install -y"
@@ -28,7 +37,8 @@ _found_arch() {
 }
 
 _get_package_manager_for_distro() {
-  local __resultvar=$1
+  local __cmd_result=$1
+  local __packages_result=$2
 
   _found_arch DKPG "Debian GNU/Linux"
   _found_arch DPKG "Ubuntu"
@@ -38,10 +48,10 @@ _get_package_manager_for_distro() {
 
   case $_OSTYPE in
     YUM)
-      echo 'Using yum package manager' && eval $__resultvar="'${_YUM_CMD}'" && return
+      echo 'Using yum package manager' && eval $__cmd_result="'${_YUM_CMD}'" && eval $__packages_result="'${_YUM_PACKAGES}'" && return
       ;;
     DPKG)
-      echo 'Using apt package manager' && eval $__resultvar="'${_APT_CMD}'" && return
+      echo 'Using apt package manager' && eval $__cmd_result="'${_APT_CMD}'" && eval $__packages_result="'${_APT_PACKAGES}'" && return
       ;;
     *)
       echo 'Cannot detect OS type from /etc/issue, falling back to detecting package manager directly...'
@@ -49,9 +59,9 @@ _get_package_manager_for_distro() {
   esac
 
   if [[ -x "${_YUM_LOCATION}" ]]; then
-    echo 'Using yum package manager' && eval $__resultvar="'${_YUM_CMD}'" && return
+    echo 'Using yum package manager' && eval $__cmd_result="'${_YUM_CMD}'" && eval $__packages_result="'${_YUM_PACKAGES}'" && return
   elif [[ -x "${_APT_LOCATION}" ]]; then
-    echo 'Using apt package manager' && eval $__resultvar="'${_APT_CMD}'"
+    echo 'Using apt package manager' && eval $__cmd_result="'${_APT_CMD}'" && eval $__packages_result="'${_APT_PACKAGES}'" && return
   else
     echo 'Cannot find any package manager to use...'
   fi
@@ -75,51 +85,62 @@ _remove_existing_and_link_file() {
   _link_file_to_home $1
 }
 
-echo "Installing dependencies..."
+_install_packages() {
+  echo "Installing required packages..."
+  $_INSTALL_CMD=$1
+  $_PACKAGES=$2
+  
+  for package in "${PACKAGES[@]}"
+  do
+    eval "$INSTALL_CMD $package"
+  done
 
-_get_package_manager_for_distro INSTALL_CMD
+  # install oh-my-zsh
+  sh -c "$($_PROXY_CMD curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
-if [[ -z $INSTALL_CMD ]]; then
-  echo 'Exiting setup, no viable package manager found'
-  exit 1
-fi
+  # install vim plugin manager
+  sh -c '"${_PROXY_CMD}" curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
 
-echo "Setting up environment..."
+  # install tmux plugin manager
+  $_PROXY_CMD git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
-for package in "${_PACKAGES[@]}"
-do
-  eval "$INSTALL_CMD $package"
-done
+  echo "Packages installed..."
+}
 
-# install oh-my-zsh
-sh -c "$($_PROXY_CMD curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+_install_config() {
+  
+  echo "Installing config..."
 
-# install vim plugin manager
-sh -c '"${_PROXY_CMD}" curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
-       https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+  cd "$(dirname $0)"
 
-# install tmux plugin manager
-$_PROXY_CMD git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+  # handle neovim config
+  _remove_if_exists ~/.config/nvim/init.vim
+  mkdir -p ~/.config/nvim
+  ln -s "$(pwd)/init.vim" ~/.config/nvim/init.vim
 
-echo "Installing config..."
+  for dotfile in "${_DOTFILES[@]}"
+  do
+    _remove_existing_and_link_file $dotfile
+  done
 
-cd "$(dirname $0)"
-# required files
+  echo 'Installing nvim plugins...'
+  nvim -c 'PlugInstall | qa'
+}
 
-# handle neovim config
-_remove_if_exists ~/.config/nvim/init.vim
-mkdir -p ~/.config/nvim
-ln -s "$(pwd)/init.vim" ~/.config/nvim/init.vim
+_run() {
+  echo 'Installing Dependencies...'
+  _get_package_manager_for_distro _INSTALL_CMD _PACKAGES
 
-alias vim="nvim"
+  if [[ -z $_INSTALL_CMD ]]; then
+    echo 'Exiting setup, no supported package manager found'
+    exit 1;
+  fi
 
-for dotfile in "${_DOTFILES[@]}"
-do
-  _remove_existing_and_link_file $dotfile
-done
+  _install_packages $_INSTALL_CMD $_PACKAGES
+  _install_config
 
-echo 'Installing nvim plugins...'
-nvim -c 'PlugInstall | qa'
+  echo 'Reloading environment...'
+  reset
+}
 
-echo 'Reloading environment...'
-reset
+_print_usage
