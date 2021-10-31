@@ -116,6 +116,8 @@ _install_config() {
   do
     _remove_existing_and_link_file $dotfile
   done
+
+  ln $(pwd)/config.lua ~/.config/lvim/config.lua
 }
 
 _run() {
