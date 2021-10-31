@@ -8,13 +8,6 @@ ENABLE_CORRECTION="true"
 plugins=(docker git github tmux kubectl virtualenv)
 source $ZSH/oh-my-zsh.sh
 
-# Source secrets if available
-[ -f ~/.secrets.sh ] && source ~/.secrets.sh
-
-
-# Setup fzf
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
 # Setup docker host for WSL
 # WSL (Windows Subsystem for Linux) specific settings.
 if grep -qE "(Microsoft|WSL)" /proc/version &>/dev/null; then
@@ -22,10 +15,6 @@ if grep -qE "(Microsoft|WSL)" /proc/version &>/dev/null; then
     if [ "$(umask)" = "0000" ]; then
       umask 0022
     fi
-
-    # Access local X-server with VcXsrv.
-    #   Requires: https://sourceforge.net/projects/vcxsrv/ (or alternative)
-    export DISPLAY=:0
 
     # Configure the Docker CLI to use the Docker for Windows daemon.
     #   Requires: https://docs.docker.com/docker-for-windows/install/
@@ -53,3 +42,11 @@ export PATH="$HOME/gems/bin:$PATH"
 
 # Enable virtualenv
 export VIRTUAL_ENV_DISABLE_PROMPT=
+
+# Source secrets if available
+[ -f ~/.secrets.sh ] && source ~/.secrets.sh
+
+# Setup fzf
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+

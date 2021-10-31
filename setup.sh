@@ -12,20 +12,17 @@ _print_usage() {
   echo "$0 usage:" && grep ' .)\ #' $0; exit 0;
 }
 
-a=' s) # Specify strength, either 45 or 90.'
-if [[ -z $1 ]]; then
-  _PROXY_CMD=$1
-else
-  _PROXY_CMD=''
-fi
-
-_APT_PACKAGES=("git" "fontconfig" "fonts-powerline" "neovim" "nodejs" "tmux" "fzf" "ruby" "ruby-full")
-_YUM_PACKAGES=("git" "fontconfig" "powerline-fonts" "neovim" "nodejs" "tmux" "fzf" "ruby" "ruby-full")
+declare _PROXY_CMD
+declare _INSTALL_CMD
+declare _PACKAGES
+_APT_PACKAGES=("zsh" "git" "fontconfig" "fonts-powerline" "nodejs" "neovim" "tmux" "fzf" "ruby" "ruby-full")
+_YUM_PACKAGES=("zsh" "git" "fontconfig" "powerline-fonts" "nodejs" "neovim" "tmux" "fzf" "ruby" "ruby-full")
 _DOTFILES=("profile" "aliases" "functions.sh" "fzf.zsh" "gitignore_global" "gitconfig" "tmux.conf" "zshrc")
 _YUM_LOCATION='/usr/bin/yum'
 _YUM_CMD="$_PROXY_CMD sudo ${_YUM_LOCATION} install -y"
 _APT_LOCATION='/usr/bin/apt'
 _APT_CMD="$_PROXY_CMD sudo ${_APT_LOCATION} install -y"
+_PACKAGES=
 
 # The following 2 functions have been copied and modified from pacapt, checks 
 # /etc/issue then falls back to directly testing the installed package manager 
@@ -37,9 +34,6 @@ _found_arch() {
 }
 
 _get_package_manager_for_distro() {
-  local __cmd_result=$1
-  local __packages_result=$2
-
   _found_arch DKPG "Debian GNU/Linux"
   _found_arch DPKG "Ubuntu"
   _found_arch YUM  "CentOS"
@@ -48,10 +42,10 @@ _get_package_manager_for_distro() {
 
   case $_OSTYPE in
     YUM)
-      echo 'Using yum package manager' && eval $__cmd_result="'${_YUM_CMD}'" && eval $__packages_result="'${_YUM_PACKAGES}'" && return
+      echo 'Using yum package manager' && export _PACKAGES=${_YUM_PACKAGES[@]} && export _INSTALL_CMD=${_YUM_CMD} && return
       ;;
     DPKG)
-      echo 'Using apt package manager' && eval $__cmd_result="'${_APT_CMD}'" && eval $__packages_result="'${_APT_PACKAGES}'" && return
+       echo 'Using apt package manager' && export _PACKAGES=${_APT_PACKAGES[@]} export _INSTALL_CMD=${_APT_CMD} && return
       ;;
     *)
       echo 'Cannot detect OS type from /etc/issue, falling back to detecting package manager directly...'
@@ -59,9 +53,9 @@ _get_package_manager_for_distro() {
   esac
 
   if [[ -x "${_YUM_LOCATION}" ]]; then
-    echo 'Using yum package manager' && eval $__cmd_result="'${_YUM_CMD}'" && eval $__packages_result="'${_YUM_PACKAGES}'" && return
+    echo 'Using yum package manager' && export _PACKAGES=${_YUM_PACKAGES[@]} && export _INSTALL_CMD=${_YUM_CMD} && return
   elif [[ -x "${_APT_LOCATION}" ]]; then
-    echo 'Using apt package manager' && eval $__cmd_result="'${_APT_CMD}'" && eval $__packages_result="'${_APT_PACKAGES}'" && return
+    echo 'Using apt package manager' && export _PACKAGES=${_APT_PACKAGES[@]} export _INSTALL_CMD=${_APT_CMD} && return
   else
     echo 'Cannot find any package manager to use...'
   fi
@@ -87,22 +81,27 @@ _remove_existing_and_link_file() {
 
 _install_packages() {
   echo "Installing required packages..."
-  $_INSTALL_CMD=$1
-  $_PACKAGES=$2
-  
-  for package in "${PACKAGES[@]}"
+
+  for package in "${_PACKAGES[@]}"
   do
-    eval "$INSTALL_CMD $package"
+    echo "Installing $package with $_INSTALL_CMD"
+    eval "$_INSTALL_CMD $package"
   done
 
   # install oh-my-zsh
   sh -c "$($_PROXY_CMD curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+
+  # remove defalt zsh conf
+  rm ~/.zshrc
 
   # install vim plugin manager
   sh -c '"${_PROXY_CMD}" curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
 
   # install tmux plugin manager
   $_PROXY_CMD git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+
+  # install lunarvim
+  $_PROXY_CMD bash <(curl -s https://raw.githubusercontent.com/lunarvim/lunarvim/master/utils/installer/install.sh)
 
   echo "Packages installed..."
 }
@@ -113,34 +112,26 @@ _install_config() {
 
   cd "$(dirname $0)"
 
-  # handle neovim config
-  _remove_if_exists ~/.config/nvim/init.vim
-  mkdir -p ~/.config/nvim
-  ln -s "$(pwd)/init.vim" ~/.config/nvim/init.vim
-
   for dotfile in "${_DOTFILES[@]}"
   do
     _remove_existing_and_link_file $dotfile
   done
-
-  echo 'Installing nvim plugins...'
-  nvim -c 'PlugInstall | qa'
 }
 
 _run() {
   echo 'Installing Dependencies...'
-  _get_package_manager_for_distro _INSTALL_CMD _PACKAGES
+  _get_package_manager_for_distro
 
   if [[ -z $_INSTALL_CMD ]]; then
     echo 'Exiting setup, no supported package manager found'
     exit 1;
   fi
 
-  _install_packages $_INSTALL_CMD $_PACKAGES
+  _install_packages 
   _install_config
 
   echo 'Reloading environment...'
   reset
 }
 
-_print_usage
+_run
