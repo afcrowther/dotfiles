@@ -45,4 +45,7 @@ export VIRTUAL_ENV_DISABLE_PROMPT=
 # Setup fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
+if [ -d "$HOME/.local/bin" ]; then
+    PATH=$HOME/.local/bin:$PATH
+fi
 

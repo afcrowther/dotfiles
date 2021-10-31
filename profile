@@ -1,3 +1,5 @@
+echo ".profile running..."
+
 # if running zsh
 if [ -n "$ZSH_VERSION" ]; then
   . "$HOME/.zshrc"
