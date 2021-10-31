@@ -36,10 +36,6 @@ export TERM=xterm-256color
 # java home
 export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 
-# Ruby gems
-export GEM_HOME="$HOME/gems"
-export PATH="$HOME/gems/bin:$PATH"
-
 # Enable virtualenv
 export VIRTUAL_ENV_DISABLE_PROMPT=
 
